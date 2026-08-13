@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.kotlinSerialization)
 }
 
 kotlin {
@@ -12,6 +13,7 @@ kotlin {
 }
 dependencies {
     implementation(project(":shared"))
+    implementation(libs.koin.android)
 
     implementation(libs.androidx.activity.compose)
 
@@ -20,11 +22,11 @@ dependencies {
 }
 
 android {
-    namespace = "com.example.gamedealsradar"
+    namespace = "com.gamedealsradar"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "com.example.gamedealsradar"
+        applicationId = "com.gamedealsradar"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
