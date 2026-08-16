@@ -3,41 +3,48 @@ package com.gamedealsradar.data.mapper
 import com.gamedealsradar.data.model.Giveaway
 import com.gamedealsradar.data.model.GiveawayDto
 import com.gamedealsradar.Logger
+import com.gamedealsradar.data.model.GiveawayEntity
 import com.gamedealsradar.domain.model.GiveawayType
-import com.gamedealsradar.domain.model.Platforms
+import com.gamedealsradar.domain.model.Platform
+import com.gamedealsradar.domain.model.Store
 import kotlin.time.Instant
 
-fun GiveawayDto.toGiveaway(): Giveaway {
+fun GiveawayDto.toGiveawayEntity(): GiveawayEntity {
+    val parsedPlatforms =
+        platforms?.splitPlatformAndStores() ?: ParsedPlatforms(emptyList(), emptyList())
+
+    return GiveawayEntity(
+        id = id,
+        title = title,
+        description = description ?: "",
+        thumbnail = thumbnailUrl ?: "",
+        imageUrl = imageUrl ?: "",
+        worth = worth ?: "",
+        giveawayUrl = giveawayUrl ?: "",
+        type = type ?: "",
+        platforms = parsedPlatforms.platforms.joinToString(","),
+        stores = parsedPlatforms.stores.joinToString(","),
+        publishedDate = publishedDate ?: "",
+        endDate = endDate ?: "",
+        updatedAt = updatedAt ?: "",
+    )
+}
+
+fun GiveawayEntity.toDomain(): Giveaway {
     return Giveaway(
         id = id,
         title = title,
         description = description,
         thumbnail = thumbnail,
-        image = image,
+        image = imageUrl,
         worth = worth,
         giveawayUrl = giveawayUrl,
-        type = type?.toGiveawayType(),
-        platforms = platforms.toPlatformsList(),
-        publishedDate = publishedDate?.toInstant(),
-        endDate = endDate?.toInstant(),
-        updatedAt = updatedAt?.toInstant()
-    )
-}
-
-fun Giveaway.toDto(): GiveawayDto {
-    return GiveawayDto(
-        id = id,
-        title = title,
-        description = description,
-        thumbnail = thumbnail,
-        image = image,
-        worth = worth,
-        giveawayUrl = giveawayUrl,
-        type = type?.toDtoStatus(),
-        platforms = platforms.toDtoPlatforms(),
-        publishedDate = publishedDate?.toString(),
-        endDate = endDate?.toString(),
-        updatedAt = updatedAt?.toString()
+        type = type.toGiveawayType(),
+        platforms = platforms.toPlatformList(),
+        stores = stores.toStoreList(),
+        publishedDate = publishedDate.toInstant(),
+        endDate = endDate.toInstant(),
+        updatedAt = updatedAt.toInstant()
     )
 }
 
@@ -50,59 +57,50 @@ private fun String.toGiveawayType(): GiveawayType? {
     }
 }
 
-private fun GiveawayType.toDtoStatus(): String {
-    return when (this) {
-        GiveawayType.GAME -> "Game"
-        GiveawayType.DLC -> "DLC"
-        GiveawayType.EARLY_ACCESS -> "Early Access"
-    }
-}
-
-private fun String?.toPlatformsList(): List<Platforms> {
+private fun String?.toPlatformList(): List<Platform> {
     if (this.isNullOrBlank()) return emptyList()
-    return this.split(",").map { it.trim().toPlatform() }
+    return this.split(",").mapNotNull { it.trim().toPlatform() }
 }
 
-private fun List<Platforms>.toDtoPlatforms(): String {
-    return this.joinToString(", ") { it.toDtoName() }
+private fun String?.toStoreList(): List<Store> {
+    if (this.isNullOrBlank()) return emptyList()
+    return this.split(",").mapNotNull { it.trim().toStore() }
 }
 
-private fun String.toPlatform(): Platforms {
+private fun String.toPlatform(): Platform? {
     return when (this) {
-        "PC" -> Platforms.PC
-        "Playstation 4" -> Platforms.PLAYSTATION_4
-        "Playstation 5" -> Platforms.PLAYSTATION_5
-        "Xbox One" -> Platforms.XBOX_ONE
-        "Xbox Series X|S" -> Platforms.XBOX_SERIES_X_S
-        "Switch" -> Platforms.SWITCH
-        "Android" -> Platforms.ANDROID
-        "iOS" -> Platforms.IOS
-        "DRM-Free" -> Platforms.DRM_FREE
-        "Steam" -> Platforms.STEAM
-        "Epic Games" -> Platforms.EPIC_GAMES
-        "GOG" -> Platforms.GOG
-        "Itch.io" -> Platforms.ITCH_IO
-        else -> Platforms.UNKNOWN
+        "PC" -> Platform.PC
+        "Playstation 4" -> Platform.PLAYSTATION_4
+        "Playstation 5" -> Platform.PLAYSTATION_5
+        "Xbox One" -> Platform.XBOX_ONE
+        "Xbox Series X|S" -> Platform.XBOX_SERIES_X_S
+        "Switch" -> Platform.SWITCH
+        "Android" -> Platform.ANDROID
+        "iOS" -> Platform.IOS
+        else -> null
     }
 }
 
-private fun Platforms.toDtoName(): String {
+private fun String.toStore(): Store? {
     return when (this) {
-        Platforms.PC -> "PC"
-        Platforms.PLAYSTATION_4 -> "Playstation 4"
-        Platforms.PLAYSTATION_5 -> "Playstation 5"
-        Platforms.XBOX_ONE -> "Xbox One"
-        Platforms.XBOX_SERIES_X_S -> "Xbox Series X|S"
-        Platforms.SWITCH -> "Switch"
-        Platforms.ANDROID -> "Android"
-        Platforms.IOS -> "iOS"
-        Platforms.DRM_FREE -> "DRM-Free"
-        Platforms.STEAM -> "Steam"
-        Platforms.EPIC_GAMES -> "Epic Games"
-        Platforms.GOG -> "GOG"
-        Platforms.ITCH_IO -> "Itch.io"
-        Platforms.UNKNOWN -> "Unknown"
+        "DRM-Free" -> Store.DRM_FREE
+        "Steam" -> Store.STEAM
+        "Epic Games Store" -> Store.EPIC_GAMES
+        "GOG" -> Store.GOG
+        "Itch.io" -> Store.ITCH_IO
+        else -> null
     }
+}
+
+private fun String.splitPlatformAndStores(): ParsedPlatforms {
+    val parts = split(",")
+        .map { it.trim() }
+        .filter { it.isNotBlank() }
+
+    return ParsedPlatforms(
+        platforms = parts.filter { it.isPlatform() },
+        stores = parts.filter { it.isStore() }
+    )
 }
 
 private fun String.toInstant(): Instant? {
@@ -111,5 +109,37 @@ private fun String.toInstant(): Instant? {
     } catch (e: Exception) {
         Logger.d("GiveawayMapper", "Failed to parse date: $this", e)
         null
+    }
+}
+
+private data class ParsedPlatforms(
+    val platforms: List<String>,
+    val stores: List<String>
+)
+
+private fun String.isPlatform(): Boolean {
+    return when (this) {
+        "PC",
+        "Playstation 4",
+        "Playstation 5",
+        "Xbox One",
+        "Xbox Series X|S",
+        "Switch",
+        "Android",
+        "iOS" -> true
+
+        else -> false
+    }
+}
+
+private fun String.isStore(): Boolean {
+    return when (this) {
+        "DRM-Free",
+        "Steam",
+        "Epic Games Store",
+        "GOG",
+        "Itch.io" -> true
+
+        else -> false
     }
 }

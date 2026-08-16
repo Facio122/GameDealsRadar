@@ -1,6 +1,6 @@
 package com.gamedealsradar.domain.model
 
-enum class Platforms {
+enum class Platform {
     PC,
     PLAYSTATION_4,
     PLAYSTATION_5,
@@ -9,10 +9,5 @@ enum class Platforms {
     SWITCH,
     ANDROID,
     IOS,
-    DRM_FREE,
-    STEAM,
-    EPIC_GAMES,
-    GOG,
-    ITCH_IO,
-    UNKNOWN,
+    UNKNOWN
 }
