@@ -4,9 +4,6 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
@@ -30,7 +27,6 @@ import androidx.compose.material3.RangeSliderState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -55,8 +51,6 @@ internal fun FilterPanel(
     config: List<FilterCategory>?,
     onCollapse: () -> Unit,
 ) {
-    var dragOffset by remember { mutableFloatStateOf(0f) }
-
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -101,32 +95,6 @@ internal fun FilterPanel(
                 onReset = { },
                 onApply = { }
             )
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(40.dp)
-                    .draggable(
-                        orientation = Orientation.Vertical,
-                        state = rememberDraggableState { delta ->
-                            dragOffset += delta
-                        },
-                        onDragStarted = {
-                            dragOffset = 0f
-                        },
-                        onDragStopped = {
-                            if (dragOffset < -40f) {
-                                onCollapse()
-                            }
-
-                            dragOffset = 0f
-                        }
-                    ),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                FilterDragHandle()
-            }
         }
     }
 }
