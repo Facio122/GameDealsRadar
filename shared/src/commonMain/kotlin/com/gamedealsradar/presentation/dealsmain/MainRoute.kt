@@ -6,9 +6,9 @@ import androidx.compose.runtime.getValue
 import org.koin.compose.koinInject
 
 @Composable
-fun DealsRoute() {
-    val viewModel = koinInject<DealsMainViewModel>()
+fun MainRoute() {
+    val viewModel = koinInject<MainViewModel>()
     val uiState by viewModel.uiState.collectAsState()
 
-    DealsMainScreen(uiState = uiState)
+    MainScreen(uiState = uiState, onAction = viewModel::handleAction)
 }

@@ -7,5 +7,5 @@ import kotlinx.serialization.Serializable
 sealed interface AppRoute : NavKey {
 
     @Serializable
-    data object DealsMain : AppRoute
+    data object Main : AppRoute
 }

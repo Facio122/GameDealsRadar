@@ -3,7 +3,8 @@ package com.gamedealsradar.di
 import com.gamedealsradar.data.room.AppDatabase
 import com.gamedealsradar.domain.repository.GiveawayRepository
 import com.gamedealsradar.data.repository.GiveawaysRepositoryImpl
-import com.gamedealsradar.presentation.dealsmain.DealsMainViewModel
+import com.gamedealsradar.domain.usecase.GetFiltersUseCase
+import com.gamedealsradar.presentation.dealsmain.MainViewModel
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
@@ -33,10 +34,13 @@ val dataModule = module {
 
 val domainModule = module {
 
+    single<GetFiltersUseCase> {
+        GetFiltersUseCase()
+    }
 }
 
 val presentationModule = module {
-    factory { DealsMainViewModel(get()) }
+    factory { MainViewModel(get(), get()) }
 }
 
 fun initKoin(appDeclaration: KoinAppDeclaration = {}) =

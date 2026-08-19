@@ -39,7 +39,11 @@ fun DealTile(deal: Giveaway) {
             .fillMaxWidth()
             .background(
                 brush = Brush.linearGradient(
-                    colors = listOf(AppColors.TileGradientStart, AppColors.TileGradientEnd)
+                    colors = listOf(
+                        AppColors.TileGradientStart,
+                        AppColors.TileGradientEnd,
+                        AppColors.TileGradientStart,
+                    )
                 ),
                 shape = RoundedCornerShape(16.dp)
             ),

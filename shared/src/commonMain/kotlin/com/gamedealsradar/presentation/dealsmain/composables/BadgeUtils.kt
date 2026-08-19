@@ -75,4 +75,7 @@ fun GiveawayType.toBadgeData(): BadgeData =
 
         GiveawayType.EARLY_ACCESS ->
             BadgeData("Early Access", AppColors.HotDeal, 120.sp)
+
+        GiveawayType.UNKNOWN ->
+            BadgeData("Unknown", AppColors.Surface, 62.sp)
     }

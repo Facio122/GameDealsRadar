@@ -1,10 +1,10 @@
 package com.gamedealsradar.domain.model
 
-enum class Store {
-    DRM_FREE,
-    STEAM,
-    EPIC_GAMES,
-    GOG,
-    ITCH_IO,
-    UNKNOWN
+enum class Store(val label: String) {
+    DRM_FREE("DRM Free"),
+    STEAM("Steam"),
+    EPIC_GAMES("Epic Games"),
+    GOG("GOG"),
+    ITCH_IO("Itch.io"),
+    UNKNOWN("Unknown")
 }

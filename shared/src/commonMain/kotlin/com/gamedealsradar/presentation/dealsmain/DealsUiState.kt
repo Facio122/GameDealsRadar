@@ -2,13 +2,21 @@ package com.gamedealsradar.presentation.dealsmain
 
 import com.gamedealsradar.data.model.Giveaway
 
-sealed interface DealsUiState {
+data class MainUiState(
+    val filterPanelConfig: List<FilterCategory>?,
+    val isFilterPanelOpened: Boolean,
+    val filterPills: List<FilterItem>,
+    val dealsState: DealsUiState,
+)
 
-    data class Success(val deals: List<Giveaway>) : DealsUiState
+data class DealsUiState(
+    val deals: List<Giveaway> = emptyList(),
+    val dealStatus: DealsStatus = DealsStatus.IDLE,
+)
 
-    data object Idle : DealsUiState
-
-    data object Loading : DealsUiState
-
-    data object Error : DealsUiState
+enum class DealsStatus {
+    IDLE,
+    LOADING,
+    SUCCESS,
+    ERROR,
 }
