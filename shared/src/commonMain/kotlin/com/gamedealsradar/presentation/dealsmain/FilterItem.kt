@@ -31,6 +31,9 @@ sealed interface FilterItem {
     ) : SelectableFilterItem
 
     data class PriceFilterItem(
-        val priceRange: ClosedFloatingPointRange<Double>,
+        val selectedMinPrice: Float,
+        val selectedMaxPrice: Float,
+        val availableMinPrice: Float,
+        val availableMaxPrice: Float
     ) : FilterItem
 }

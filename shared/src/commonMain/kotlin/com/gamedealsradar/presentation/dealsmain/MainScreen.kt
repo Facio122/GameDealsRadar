@@ -24,14 +24,13 @@ import com.gamedealsradar.domain.model.GiveawayType
 import com.gamedealsradar.domain.model.Platform
 import com.gamedealsradar.domain.model.Store
 import com.gamedealsradar.presentation.dealsmain.composables.DealTile
-import com.gamedealsradar.presentation.dealsmain.composables.DealsAction
 import com.gamedealsradar.presentation.utils.AppColors
 import kotlinx.coroutines.launch
 
 @Composable
 fun MainScreen(
     uiState: MainUiState,
-    onAction: (DealsAction) -> Unit
+    onAction: (MainAction) -> Unit
 ) {
 
     val listState = rememberLazyListState()
@@ -61,7 +60,7 @@ fun MainScreen(
                     onFocused = {
                         scope.launch {
                             listState.scrollToItem(1)
-                            onAction(DealsAction.OnSearchFocus)
+                            onAction(MainAction.SearchClick)
                         }
                     },
                     handleAction = onAction,

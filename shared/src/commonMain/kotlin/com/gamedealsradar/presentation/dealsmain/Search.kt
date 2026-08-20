@@ -8,14 +8,20 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -27,12 +33,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.gamedealsradar.presentation.dealsmain.composables.DealsAction
 import com.gamedealsradar.presentation.utils.AppColors
 import com.gamedealsradar.presentation.utils.AppIcons
 import org.jetbrains.compose.resources.painterResource
@@ -41,10 +49,8 @@ import org.jetbrains.compose.resources.painterResource
 fun Search(
     uiState: MainUiState,
     onFocused: () -> Unit,
-    handleAction: (action: DealsAction) -> Unit
+    handleAction: (action: MainAction) -> Unit
 ) {
-    var filterPanelExpanded by remember { mutableStateOf(uiState.isFilterPanelOpened) }
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -60,36 +66,36 @@ fun Search(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        FilterPills(
-            filterList = listOf("PC", "Steam", "Epic Games Store", "PlayStation", "Xbox"),
-            onClick = {
-                handleAction(DealsAction.OnPillsClicked)
-                filterPanelExpanded = !filterPanelExpanded
-            }
+        FiltersEntryPoint(
+            expanded = uiState.isFilterPanelOpened,
+            handleAction = handleAction,
         )
-            AnimatedVisibility(
-                visible = filterPanelExpanded,
-                enter = expandVertically(
-                    expandFrom = Alignment.Top,
-                    animationSpec = tween(200)
-                ) + fadeIn(
-                    animationSpec = tween(150)
-                ),
-                exit = shrinkVertically(
-                    shrinkTowards = Alignment.Top,
-                    animationSpec = tween(200)
-                ) + fadeOut(
-                    animationSpec = tween(150)
+        AnimatedVisibility(
+            visible = uiState.isFilterPanelOpened,
+            enter = expandVertically(
+                expandFrom = Alignment.Top,
+                animationSpec = tween(200)
+            ) + fadeIn(
+                animationSpec = tween(150)
+            ),
+            exit = shrinkVertically(
+                shrinkTowards = Alignment.Top,
+                animationSpec = tween(200)
+            ) + fadeOut(
+                animationSpec = tween(150)
+            )
+        ) {
+            Column {
+                Spacer(
+                    modifier = Modifier.height(8.dp)
                 )
-            ) {
-                Column {
-                    Spacer(
-                        modifier = Modifier.height(8.dp)
-                    )
 
-                    FilterPanel(uiState.filterPanelConfig) { }
-                }
+                FilterPanel(
+                    uiState.filterPanelConfig,
+                    handleAction = handleAction
+                )
             }
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -223,13 +229,83 @@ fun SearchField(
     }
 }
 
+@Composable
+private fun FiltersEntryPoint(
+    expanded: Boolean,
+    handleAction: (MainAction) -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = { handleAction(MainAction.FiltersClick) })
+            .padding(vertical = 8.dp, horizontal = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            painter = painterResource(AppIcons.Filter),
+            contentDescription = null,
+            modifier = Modifier
+                .size(20.dp)
+                .graphicsLayer {
+                    alpha = 0.99f
+                }
+                .drawWithCache {
+                    val brush = Brush.horizontalGradient(
+                        colors = listOf(
+                            AppColors.Secondary,
+                            AppColors.Primary,
+                            AppColors.Cyan,
+                            AppColors.Discount
+                        )
+                    )
+
+                    onDrawWithContent {
+                        drawContent()
+
+                        drawRect(
+                            brush = brush,
+                            blendMode = BlendMode.SrcAtop
+                        )
+                    }
+                },
+            tint = Color.White
+        )
+
+        Spacer(
+            modifier = Modifier.width(6.dp)
+        )
+
+        Text(
+            text = "Filters",
+            style = MaterialTheme.typography.labelMedium,
+            color = AppColors.TextSecondary
+        )
+
+        Spacer(
+            modifier = Modifier.weight(1f)
+        )
+
+        Icon(
+            painter = painterResource(
+                if (expanded) {
+                    AppIcons.ChevronUp
+                } else {
+                    AppIcons.ChevronDown
+                }
+            ),
+            contentDescription = null,
+            tint = AppColors.TextMuted
+        )
+    }
+}
+
 @Preview
 @Composable
 private fun SearchComponentPreview() {
     Search(
         uiState = MainUiState(
             filterPanelConfig = null,
-            isFilterPanelOpened = true,
+            isFilterPanelOpened = false,
             filterPills = emptyList(),
             dealsState = DealsUiState(
                 deals = emptyList(),

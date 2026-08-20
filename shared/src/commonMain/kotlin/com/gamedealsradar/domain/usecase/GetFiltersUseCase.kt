@@ -57,29 +57,32 @@ class GetFiltersUseCase {
 
         val priceFilters = listOf(
             FilterItem.PriceFilterItem(
-                priceRange = 0.0..150.0
+                selectedMinPrice = 0f,
+                selectedMaxPrice = 200f,
+                availableMinPrice = 0f,
+                availableMaxPrice = 200f
             )
         )
 
         return listOf(
-            FilterCategory.Store(
-                displayTitle = "Store",
+            FilterCategory(
+                title = "Store",
                 filters = storeFilters
             ),
-            FilterCategory.Platform(
-                displayTitle = "Platform",
+            FilterCategory(
+                title = "Platform",
                 filters = platformFilters
             ),
-            FilterCategory.Type(
-                displayTitle = "Type",
+            FilterCategory(
+                title = "Type",
                 filters = typeFilters
             ),
-            FilterCategory.Discount(
-                displayTitle = "Discount",
+            FilterCategory(
+                title = "Discount",
                 filters = discountFilters
             ),
-            FilterCategory.Price(
-                displayTitle = "Price",
+            FilterCategory(
+                title = "Price",
                 filters = priceFilters
             )
         )
