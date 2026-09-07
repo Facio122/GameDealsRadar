@@ -38,19 +38,19 @@ class GetFiltersUseCase {
 
         val discountFilters = listOf(
             FilterItem.DiscountedFilterItem(
-                percentageDiscountedRange = 0..24,
+                percentageDiscountedAtLeast = 25,
                 isSelected = false
             ),
             FilterItem.DiscountedFilterItem(
-                percentageDiscountedRange = 25..49,
+                percentageDiscountedAtLeast = 50,
                 isSelected = false
             ),
             FilterItem.DiscountedFilterItem(
-                percentageDiscountedRange = 50..74,
+                percentageDiscountedAtLeast = 75,
                 isSelected = false
             ),
             FilterItem.DiscountedFilterItem(
-                percentageDiscountedRange = 75..100,
+                percentageDiscountedAtLeast = 100,
                 isSelected = false
             )
         )
@@ -78,13 +78,13 @@ class GetFiltersUseCase {
                 filters = typeFilters
             ),
             FilterCategory(
+                title = "Price",
+                filters = priceFilters
+            ),
+            FilterCategory(
                 title = "Discount",
                 filters = discountFilters
             ),
-            FilterCategory(
-                title = "Price",
-                filters = priceFilters
-            )
         )
     }
 }

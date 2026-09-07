@@ -2,7 +2,8 @@ package com.gamedealsradar.presentation.dealsmain
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gamedealsradar.domain.repository.GiveawayRepository
+import com.gamedealsradar.domain.model.FilterModel
+import com.gamedealsradar.domain.repository.DealRepository
 import com.gamedealsradar.domain.usecase.GetFiltersUseCase
 import com.gamedealsradar.logDebug
 import com.gamedealsradar.presentation.utils.replaceFilter
@@ -13,7 +14,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class MainViewModel(
-    private val giveawaysRepository: GiveawayRepository,
+    private val giveawaysRepository: DealRepository,
     private val getFiltersUseCase: GetFiltersUseCase
 ) : ViewModel() {
 
@@ -26,6 +27,7 @@ class MainViewModel(
             filterPanelConfig = null,
             isFilterPanelOpened = false,
             filterPills = emptyList(),
+            searchValue = "",
             dealsState = DealsUiState()
         )
     )
@@ -43,11 +45,11 @@ class MainViewModel(
                 )
             }
 
-            giveawaysRepository.refreshGiveaways()
+            giveawaysRepository.refreshDeals()
 
             try {
                 giveawaysRepository
-                    .getLocalGiveaways()
+                    .getAllLocalDeals()
                     .collect { deals ->
                         _uiState.update {
                             it.copy(
@@ -74,8 +76,8 @@ class MainViewModel(
 
     fun handleAction(action: MainAction) {
         when (action) {
-            is MainAction.SearchClick -> {
-
+            is MainAction.SearchValueChanged -> {
+                updateSearchQuery(action.searchValue)
             }
 
             is MainAction.FiltersClick -> {
@@ -117,6 +119,10 @@ class MainViewModel(
                     maxPrice = currentMaxPrice,
                 )
             }
+
+            is MainAction.FilterChanged -> {
+                reloadFilteredGiveaways()
+            }
         }
     }
 
@@ -138,6 +144,35 @@ class MainViewModel(
                     category.replaceFilter(filterItem, newFilterItem)
                 }
             )
+        }
+    }
+
+    private fun reloadFilteredGiveaways() {
+        viewModelScope.launch {
+            try {
+                giveawaysRepository
+                    .getFilteredDeals(filters = _uiState.value.toFilterModel())
+                    .collect { deals ->
+                        _uiState.update {
+                            it.copy(
+                                dealsState = DealsUiState(
+                                    deals = deals,
+                                    dealStatus = DealsStatus.SUCCESS
+                                ),
+                            )
+                        }
+                    }
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        dealsState = DealsUiState(
+                            deals = emptyList(),
+                            dealStatus = DealsStatus.ERROR
+                        )
+                    )
+                }
+                logDebug(TAG, "Error fetching deals: ${e.message}")
+            }
         }
     }
 
@@ -166,6 +201,45 @@ class MainViewModel(
                 }
             )
 
+        }
+    }
+
+    private fun MainUiState.toFilterModel(): FilterModel {
+        return FilterModel(
+            searchQuery = searchValue,
+            stores = filterPanelConfig?.flatMap { it.filters }
+                ?.filterIsInstance<FilterItem.StoreFilterItem>()
+                ?.filter { it.isSelected }
+                ?.map { it.store.label }
+                ?: emptyList(),
+            platforms = filterPanelConfig?.flatMap { it.filters }
+                ?.filterIsInstance<FilterItem.PlatformFilterItem>()
+                ?.filter { it.isSelected }
+                ?.map { it.platform.label }
+                ?: emptyList(),
+            types = filterPanelConfig?.flatMap { it.filters }
+                ?.filterIsInstance<FilterItem.TypeFilterItem>()
+                ?.filter { it.isSelected }
+                ?.map { it.type.label }
+                ?: emptyList(),
+            priceRange = filterPanelConfig?.flatMap { it.filters }
+                ?.filterIsInstance<FilterItem.PriceFilterItem>()
+                ?.firstOrNull()
+                ?.let { it.selectedMinPrice..it.selectedMaxPrice }
+                ?: 0.0f..0.0f,
+            discounted = filterPanelConfig?.flatMap { it.filters }
+                ?.filterIsInstance<FilterItem.DiscountedFilterItem>()
+                ?.filter { it.isSelected }
+                ?.maxOfOrNull { it.percentageDiscountedAtLeast }
+                ?: 0
+        )
+    }
+
+    private fun updateSearchQuery(searchValue: String) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                searchValue = searchValue
+            )
         }
     }
 }

@@ -10,5 +10,5 @@ fun MainRoute() {
     val viewModel = koinInject<MainViewModel>()
     val uiState by viewModel.uiState.collectAsState()
 
-    MainScreen(uiState = uiState, onAction = viewModel::handleAction)
+    MainScreen(uiState = uiState, handleAction = viewModel::handleAction)
 }

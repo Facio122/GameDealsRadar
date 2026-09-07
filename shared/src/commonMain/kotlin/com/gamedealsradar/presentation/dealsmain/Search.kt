@@ -39,6 +39,7 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.gamedealsradar.presentation.utils.AppColors
@@ -60,7 +61,7 @@ fun Search(
 
         SearchField(
             query = "",
-            onQueryChange = { },
+            onQueryChange = { handleAction(MainAction.SearchValueChanged(it)) },
             onFocused = onFocused,
         )
 
@@ -234,10 +235,15 @@ private fun FiltersEntryPoint(
     expanded: Boolean,
     handleAction: (MainAction) -> Unit,
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = { handleAction(MainAction.FiltersClick) })
+            .clickable(onClick = {
+                handleAction(MainAction.FiltersClick)
+                keyboardController?.hide()
+            })
             .padding(vertical = 8.dp, horizontal = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -307,6 +313,7 @@ private fun SearchComponentPreview() {
             filterPanelConfig = null,
             isFilterPanelOpened = false,
             filterPills = emptyList(),
+            searchValue = "",
             dealsState = DealsUiState(
                 deals = emptyList(),
                 dealStatus = DealsStatus.SUCCESS

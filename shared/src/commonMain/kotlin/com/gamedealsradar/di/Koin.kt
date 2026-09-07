@@ -1,7 +1,7 @@
 package com.gamedealsradar.di
 
 import com.gamedealsradar.data.room.AppDatabase
-import com.gamedealsradar.domain.repository.GiveawayRepository
+import com.gamedealsradar.domain.repository.DealRepository
 import com.gamedealsradar.data.repository.GiveawaysRepositoryImpl
 import com.gamedealsradar.domain.usecase.GetFiltersUseCase
 import com.gamedealsradar.presentation.dealsmain.MainViewModel
@@ -27,7 +27,7 @@ val dataModule = module {
 
     single { get<AppDatabase>().giveawayDao() }
 
-    single<GiveawayRepository> {
+    single<DealRepository> {
         GiveawaysRepositoryImpl(get(), get())
     }
 }

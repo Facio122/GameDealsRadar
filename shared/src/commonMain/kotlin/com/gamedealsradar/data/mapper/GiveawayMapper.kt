@@ -3,7 +3,9 @@ package com.gamedealsradar.data.mapper
 import com.gamedealsradar.data.model.Giveaway
 import com.gamedealsradar.data.model.GiveawayDto
 import com.gamedealsradar.Logger
+import com.gamedealsradar.data.model.FilterEntity
 import com.gamedealsradar.data.model.GiveawayEntity
+import com.gamedealsradar.domain.model.FilterModel
 import com.gamedealsradar.domain.model.GiveawayType
 import com.gamedealsradar.domain.model.Platform
 import com.gamedealsradar.domain.model.Store
@@ -45,6 +47,18 @@ fun GiveawayEntity.toDomain(): Giveaway {
         publishedDate = publishedDate.toInstant(),
         endDate = endDate.toInstant(),
         updatedAt = updatedAt.toInstant()
+    )
+}
+
+fun FilterModel.toEntity(): FilterEntity {
+    return FilterEntity(
+        searchQuery = searchQuery,
+        stores = stores.joinToString(","),
+        platforms = platforms.joinToString(","),
+        types = types.joinToString(","),
+        discounted = discounted,
+        minPrice = priceRange.start,
+        maxPrice = priceRange.endInclusive
     )
 }
 

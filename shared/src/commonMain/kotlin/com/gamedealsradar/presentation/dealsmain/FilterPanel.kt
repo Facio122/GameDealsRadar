@@ -3,6 +3,7 @@ package com.gamedealsradar.presentation.dealsmain
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
@@ -22,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -44,6 +46,11 @@ internal fun FilterPanel(
                 shape = RoundedCornerShape(8.dp)
             )
             .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 8.dp)
+            .pointerInput(Unit) {
+                detectVerticalDragGestures { change, _ ->
+                    change.consume()
+                }
+            }
     ) {
         Column(
             verticalArrangement = spacedBy(8.dp)
@@ -71,11 +78,11 @@ internal fun FilterPanel(
                     else -> {}
                 }
             }
-            FilterActionButtons(
-                selectedCount = 3,
-                onReset = { },
-                onApply = { }
-            )
+//            FilterActionButtons(
+//                selectedCount = 3,
+//                onReset = { },
+//                onApply = { }
+//            )
         }
     }
 }
@@ -149,10 +156,9 @@ private fun FilterCategoryLayout(
                         is FilterItem.PlatformFilterItem -> pill.platform.label
                         is FilterItem.TypeFilterItem -> pill.type.label
                         is FilterItem.DiscountedFilterItem -> {
-                            pill.percentageDiscountedRange.let {
-                                if (it.first == 0 && it.last == 100) "All"
-                                else if (it.last == 100) "${it.first}%+"
-                                else "${it.first}-${it.last}%"
+                            when (pill.percentageDiscountedAtLeast) {
+                                100 -> "100%"
+                                else -> "${pill.percentageDiscountedAtLeast}%+"
                             }
                         }
                     },
@@ -261,7 +267,7 @@ private fun FilterItem.toLabel(): String {
             type.label
 
         is FilterItem.DiscountedFilterItem ->
-            "${percentageDiscountedRange.first}-${percentageDiscountedRange.last}%"
+            "${percentageDiscountedAtLeast}%+"
 
         is FilterItem.PriceFilterItem ->
             "$${selectedMinPrice.toInt()}-$${selectedMaxPrice.toInt()}"

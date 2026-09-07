@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,11 +31,15 @@ import kotlinx.coroutines.launch
 @Composable
 fun MainScreen(
     uiState: MainUiState,
-    onAction: (MainAction) -> Unit
+    handleAction: (MainAction) -> Unit
 ) {
 
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
+
+    LaunchedEffect(uiState.filterPanelConfig, uiState.searchValue) {
+        handleAction(MainAction.FilterChanged)
+    }
 
     Surface(
         modifier = Modifier
@@ -59,11 +64,10 @@ fun MainScreen(
                 Search(
                     onFocused = {
                         scope.launch {
-                            listState.scrollToItem(1)
-                            onAction(MainAction.SearchClick)
+                            listState.animateScrollToItem(1)
                         }
                     },
-                    handleAction = onAction,
+                    handleAction = handleAction,
                     uiState = uiState
                 )
                 Spacer(modifier = Modifier.height(2.dp))
@@ -119,13 +123,14 @@ private fun MainScreenPreview() {
         uiState = MainUiState(
             filterPanelConfig = null,
             isFilterPanelOpened = false,
+            searchValue = "",
             filterPills = emptyList(),
             dealsState = DealsUiState(
                 deals = mockedList(),
                 dealStatus = DealsStatus.SUCCESS
             )
         ),
-        onAction = { }
+        handleAction = { }
     )
 }
 

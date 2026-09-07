@@ -26,7 +26,7 @@ sealed interface FilterItem {
     ) : SelectableFilterItem
 
     data class DiscountedFilterItem(
-        val percentageDiscountedRange: IntRange,
+        val percentageDiscountedAtLeast: Int,
         override val isSelected: Boolean
     ) : SelectableFilterItem
 

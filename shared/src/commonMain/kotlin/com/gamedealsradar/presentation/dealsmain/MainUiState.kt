@@ -6,6 +6,7 @@ data class MainUiState(
     val filterPanelConfig: List<FilterCategory>?,
     val isFilterPanelOpened: Boolean,
     val filterPills: List<FilterItem>,
+    val searchValue: String,
     val dealsState: DealsUiState,
 )
 
